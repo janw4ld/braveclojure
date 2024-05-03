@@ -5,7 +5,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    clj-nix.url = "github:jlesquembre/clj-nix";
+    clj-nix = {
+      url = "github:jlesquembre/clj-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs:
@@ -33,7 +36,9 @@
     in {
       packages.default = drv;
       devShells.default = pkgs.mkShell {
-        packages = with pkgs; [clojure clojure-lsp zprint];
+        packages =
+          [inputs.clj-nix.packages.${system}.deps-lock]
+          ++ (with pkgs; [clojure clojure-lsp zprint]);
       };
     });
 }
