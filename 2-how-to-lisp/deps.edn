@@ -1,0 +1,11 @@
+{:aliases {:build {:deps {io.github.clojure/tools.build {:git/sha "15ead66",
+                                                         :git/tag "v0.10.3"}},
+                   :ns-default build},
+           :repl/conjure {:extra-deps {cider/cider-nrepl {:mvn/version
+                                                            "0.42.1"},
+                                       nrepl/nrepl {:mvn/version "1.1.0"}},
+                          :main-opts ["--main" "nrepl.cmdline" "--middleware"
+                                      "[cider.nrepl/cider-middleware]"]}},
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"},
+        org.clojure/core.match {:mvn/version "1.1.0"}},
+ :paths ["src"]}
