@@ -1,0 +1,6 @@
+{:style
+ [{:style-call :rod, :one-line-ok? true} :backtranslate :how-to-ns :map-nl :pair-nl :binding-nl
+  :keyword-respect-nl :no-hang],
+
+ :width 100,
+ :map {:sort? false}}
