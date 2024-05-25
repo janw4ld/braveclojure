@@ -1,4 +1,6 @@
-(ns exercises)
+(ns exercises
+  (:require
+   [clojure.test :refer [deftest is run-tests]]))
 
 (let [cmd (read-string "(println \"janw4ld, back to the future\")")] (eval cmd))
 
@@ -51,14 +53,20 @@
                 (recur tokens (conj ops token) (apply-ops top-ops expr))))))))
     tokens))
 
-(infix '(1 + 3 * 4 - 5)) ;=> (- (+ 1 (* 3 4)) 5)
-(infix '(2 / 1 + 3 * 4 - 5 / 2)) ;=> (- (+ (/ 2 1) (* 3 4)) (/ 5 2))
-(eval (infix '(2 / 1 + 3 * 4 - 5 / 2))) ;=> 23/2
-(eval (infix '(1))) ;=> 1
-(eval (infix '(1 - 5))) ;=> -4
-(infix '((1 + 3) * 4 - 5)) ;=> (- (* (+ 1 3) 4) 5)
-(infix '(2 / 3 * 4 - 5 / 5)) ;=> (- (* (/ 2 3) 4) (/ 5 5))
-(infix '[5 - 2]) ;=> (- 5 2)
-(infix '{+ 5, - 2}) ; (err) Execution error (NullPointerException) at exercises/infix$fn
-(infix '1) ;=> 1
-(infix '+) ;=> +
+(deftest infix-test
+  (is (= '(- (+ 1 (* 3 4)) 5) (infix '(1 + 3 * 4 - 5))))
+  (is (not= '(+ 1 (- (* 3 4) 5)) (infix '(1 + 3 * 4 - 5))))
+  (is (= '(- (+ (/ 2 1) (* 3 4)) (/ 5 2)) (infix '(2 / 1 + 3 * 4 - 5 / 2))))
+  (is (= 23/2 (eval (infix '(2 / 1 + 3 * 4 - 5 / 2)))))
+  (is (= 1 (eval (infix '(1)))))
+  (is (= -4 (eval (infix '(1 - 5)))))
+  (is (= '(- (* (+ 1 3) 4) 5) (infix '((1 + 3) * 4 - 5))))
+  (is (= '(- (* (/ 2 3) 4) (/ 5 5)) (infix '(2 / 3 * 4 - 5 / 5))))
+  (is (= '(- 5 2) (infix '[5 - 2])))
+  (is (= '1 (infix '1)))
+  (is (= 1 (infix '1)))
+  (is (not= '2 (infix '1)))
+  (is (= '+ (infix '+)))
+  (is (not= '* (infix '+)))
+  (is (thrown? NullPointerException (infix '{+ 5, - 2}))))
+(run-tests) ;=> {:test 1, :pass 15, :fail 0, :error 0, :type :summary}
