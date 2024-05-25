@@ -21,38 +21,44 @@
 ;; operation: ((+ 1 (* 3 4)) 5)     operators: (-)
 ;; operation: (- (+ 1 (* 3 4)) 5)   operators: ()
 
-(defn infix-to-prefix [tokens]
-  (let [precedence {'+ 1, '- 1, '* 2, '/ 2}
-        tokens (reverse tokens)
-        apply-ops #(loop [ops %1
-                          expr %2]
-                     (if (empty? ops)
-                       expr
-                       (let [operator (first ops)
-                             operands (take 2 expr)
-                             ops (rest ops)
-                             expr (drop 2 expr)]
-                         (recur ops (conj expr (conj operands operator))))))]
-    (loop [tokens tokens
-           ops '()
-           expr '()]
-      (if (empty? tokens)
-        (first (apply-ops ops expr))
-        ;; (reduce #(cons %2 %1) expr top-ops))
-        (let [token (first tokens)
-              tokens (rest tokens)]
-          (cond
-            (number? token) (recur tokens ops (conj expr token))
-            (list? token) (recur tokens ops (conj expr (infix-to-prefix token)))
-            :else
-            (let [[top-ops ops]
-                  (split-with #(> (precedence %) (precedence token)) ops)]
-              (recur tokens (conj ops token) (apply-ops top-ops expr)))))))))
+(defn infix [tokens]
+  (if (seqable? tokens)
+    (let [precedence {'+ 1, '- 1, '* 2, '/ 2}
+          tokens (reverse tokens)
+          apply-ops #(loop [ops %1
+                            expr %2]
+                       (if (empty? ops)
+                         expr
+                         (let [operator (first ops)
+                               operands (take 2 expr)
+                               ops (rest ops)
+                               expr (drop 2 expr)]
+                           (recur ops (conj expr (conj operands operator))))))]
+      (loop [tokens tokens
+             ops '()
+             expr '()]
+        (if (empty? tokens)
+          (first (apply-ops ops expr))
+          ;; (reduce #(cons %2 %1) expr top-ops))
+          (let [token (first tokens)
+                tokens (rest tokens)]
+            (cond
+              (number? token) (recur tokens ops (conj expr token))
+              (list? token) (recur tokens ops (conj expr (infix token)))
+              :else
+              (let [[top-ops ops]
+                    (split-with #(> (precedence %) (precedence token)) ops)]
+                (recur tokens (conj ops token) (apply-ops top-ops expr))))))))
+    tokens))
 
-(infix-to-prefix '(1 + 3 * 4 - 5)) ;=> (- (+ 1 (* 3 4)) 5)
-(infix-to-prefix '(2 / 1 + 3 * 4 - 5 / 2)) ;=> (- (+ (/ 2 1) (* 3 4)) (/ 5 2))
-(eval (infix-to-prefix '(2 / 1 + 3 * 4 - 5 / 2))) ;=> 23/2
-(eval (infix-to-prefix '(1))) ;=> 1
-(eval (infix-to-prefix '(1 - 5))) ;=> -4
-(infix-to-prefix '((1 + 3) * 4 - 5)) ;=> (- (* (+ 1 3) 4) 5)
-(infix-to-prefix '(2 / 3 * 4 - 5 / 5)) ;=> (- (* (/ 2 3) 4) (/ 5 5))
+(infix '(1 + 3 * 4 - 5)) ;=> (- (+ 1 (* 3 4)) 5)
+(infix '(2 / 1 + 3 * 4 - 5 / 2)) ;=> (- (+ (/ 2 1) (* 3 4)) (/ 5 2))
+(eval (infix '(2 / 1 + 3 * 4 - 5 / 2))) ;=> 23/2
+(eval (infix '(1))) ;=> 1
+(eval (infix '(1 - 5))) ;=> -4
+(infix '((1 + 3) * 4 - 5)) ;=> (- (* (+ 1 3) 4) 5)
+(infix '(2 / 3 * 4 - 5 / 5)) ;=> (- (* (/ 2 3) 4) (/ 5 5))
+(infix '[5 - 2]) ;=> (- 5 2)
+(infix '{+ 5, - 2}) ; (err) Execution error (NullPointerException) at exercises/infix$fn
+(infix '1) ;=> 1
+(infix '+) ;=> +
