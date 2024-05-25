@@ -15,3 +15,5 @@ i also parameterised the `uber` task in `app/build.clj` by :main, to allow for
 using different entrypoints in the same app (not a good idea tho), this taught
 me about evaluation, `symbol`, `resolve`, `quote` and other macro-ish things in
 the language.
+
+chapter 6 introduces namespaces and project structure concepts
